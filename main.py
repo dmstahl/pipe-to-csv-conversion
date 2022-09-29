@@ -22,10 +22,6 @@ def convert_csv(bucket_name):
 
     # get list of objects in source bucket
     blobs = storage_client.list_blobs(bucket_name)
- 
-    # create output directory if it doesn't exist
-    if not os.path.exists("/tmp/output/"):
-        os.mkdir("/tmp/output/")
 
     # Process all objects in source bucket.
     # 1. Download From GCS
@@ -37,11 +33,21 @@ def convert_csv(bucket_name):
         print("PROCESSING {}".format(blob.name))
 
         local_src_file = "/tmp/{}".format(blob.name)
+        local_src_dir = "/tmp/{}".format('/'.join(blob.name.split('/')[0:-1]))
+        if not os.path.exists(local_src_dir):
+            os.makedirs(local_src_dir)
+
         src_file = src_bucket.blob(blob.name)
         src_file.download_to_filename(local_src_file)
 
+        # Output
+        local_dest_file = "/tmp/output/{}".format(blob.name)
+        local_dest_dir = "/tmp/output/{}".format('/'.join(blob.name.split('/')[0:-1]))
+        if not os.path.exists(local_dest_dir):
+            os.makedirs(local_dest_dir)
+
         with open(local_src_file, "r") as file_pipe:
-            with open("/tmp/output/{}".format(blob.name), 'w') as file_comma:
+            with open(local_dest_file, 'w') as file_comma:
                  csv.writer(file_comma, delimiter=',').writerows(csv.reader(file_pipe, delimiter='|'))
         
         dest_blob = dest_bucket.blob(blob.name)
@@ -50,7 +56,7 @@ def convert_csv(bucket_name):
         print("UPLOADED {}".format(dest_blob.name))
 
         # Remove Temp files
-        os.remove( "/tmp/{}".format(blob.name))
+        os.remove("/tmp/{}".format(blob.name))
         os.remove("/tmp/output/{}".format(blob.name))
 
 
