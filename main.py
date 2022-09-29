@@ -4,8 +4,7 @@ import csv
 import os
 from pathlib import Path
 
-def convert_csv(bucket_name, subdir=""):
-    dest_bucket_name = '{}-converted'.format(bucket_name)
+def convert_csv(bucket_name, dest_bucket_name, subdir=""):
     # Create Storage client
     storage_client = storage.Client(project='my-project')
     
@@ -72,8 +71,9 @@ def process_file(src_file_name, src_bucket, dest_bucket):
     
 def main():
     src_bucket_name = "my-bucket"
+    dest_bucket_name = '{}-converted'.format(src_bucket_name)
     subdir = ""
-    convert_csv(src_bucket_name, subdir)
+    convert_csv(src_bucket_name, dest_bucket_name, subdir)
     
     print('Success!')
 
