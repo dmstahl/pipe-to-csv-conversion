@@ -1,4 +1,3 @@
-from urllib.request import Request
 from google.cloud import storage
 import csv
 import os
